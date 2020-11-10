@@ -112,7 +112,7 @@ class COCODataset(JointsDataset):
     def _get_ann_file_keypoint(self):
         """ self.root / annotations / person_keypoints_train2017.json """
         prefix = 'person_keypoints' \
-            if 'test' not in self.image_set else 'image_info'
+            if 'test' not in self.image_set else 'person_keypoints'
         return os.path.join(
             self.root,
             'annotations',
@@ -234,7 +234,8 @@ class COCODataset(JointsDataset):
         if '2014' in self.image_set:
             file_name = 'COCO_%s_' % self.image_set + file_name
 
-        prefix = 'test2017' if 'test' in self.image_set else self.image_set
+        # prefix = 'test2017' if 'test' in self.image_set else self.image_set
+        prefix = self.image_set if 'test' in self.image_set else self.image_set
 
         data_name = prefix + '.zip@' if self.data_format == 'zip' else prefix
 
@@ -363,7 +364,11 @@ class COCODataset(JointsDataset):
             name_value = OrderedDict(info_str)
             return name_value, name_value['AP']
         else:
-            return {'Null': 0}, 0
+            # return {'Null': 0}, 0
+            info_str = self._do_python_keypoint_eval(
+                res_file, res_folder)
+            name_value = OrderedDict(info_str)
+            return name_value, name_value['AP']
 
     def _write_coco_keypoint_results(self, keypoints, res_file):
         data_pack = [

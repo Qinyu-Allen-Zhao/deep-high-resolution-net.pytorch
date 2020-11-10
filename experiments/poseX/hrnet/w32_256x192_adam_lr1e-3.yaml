@@ -17,11 +17,11 @@ DATASET:
   FLIP: true
   NUM_JOINTS_HALF_BODY: 8
   PROB_HALF_BODY: 0.3
-  ROOT: 'data/poseX/'
+  ROOT: 'data/poseXv060/'
   ROT_FACTOR: 45
   SCALE_FACTOR: 0.35
-  TEST_SET: 'valid_v050dev'
-  TRAIN_SET: 'train_v050dev'
+  TEST_SET: 'valid_v060'
+  TRAIN_SET: 'train_v060'
 MODEL:
   INIT_WEIGHTS: true
   NAME: pose_hrnet

@@ -6,6 +6,7 @@ CUDNN:
 DATA_DIR: ''
 GPUS: (0,)
 OUTPUT_DIR: 'output'
+# OUTPUT_DIR: 'output/test'
 LOG_DIR: 'log'
 WORKERS: 24
 PRINT_FREQ: 40
@@ -13,9 +14,10 @@ PRINT_FREQ: 40
 DATASET:
   COLOR_RGB: false
   DATASET: 'coco'
-  ROOT: 'data/poseXv050Rand/'
-  TEST_SET: 'valid_v050Rand'
-  TRAIN_SET: 'train_v050Rand'
+  ROOT: 'data/poseXv060/'
+  TEST_SET: 'valid_v060'
+  # TEST_SET: 'test_v060'
+  TRAIN_SET: 'train_v060'
   FLIP: true
   ROT_FACTOR: 40
   SCALE_FACTOR: 0.3
