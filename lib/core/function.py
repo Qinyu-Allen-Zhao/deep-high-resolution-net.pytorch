@@ -7,7 +7,7 @@
 from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
- 
+
 import time
 import logging
 import os
@@ -95,7 +95,7 @@ def train(config, train_loader, model, criterion, optimizer, epoch,
 
 
 def validate(config, val_loader, val_dataset, model, criterion, output_dir,
-             tb_log_dir, writer_dict=None):
+             tb_log_dir, writer_dict=None, eval_exclude_kpt=0):
     batch_time = AverageMeter()
     losses = AverageMeter()
     acc = AverageMeter()
@@ -146,17 +146,16 @@ def validate(config, val_loader, val_dataset, model, criterion, output_dir,
 
             target = target.cuda(non_blocking=True)
             target_weight = target_weight.cuda(non_blocking=True)
-
-            loss = criterion(output, target, target_weight)
+            loss = criterion(output[:,eval_exclude_kpt:,:,:], target[:,eval_exclude_kpt:,:,:], target_weight[:,eval_exclude_kpt:,:])
 
             num_images = input.size(0)
             # measure accuracy and record loss
             losses.update(loss.item(), num_images)
-            _, avg_acc, cnt, pred = accuracy(output.cpu().numpy(),
-                                             target.cpu().numpy())
+            _, avg_acc, cnt, pred = accuracy(output[:,eval_exclude_kpt:,:,:].cpu().numpy(),
+                                             target[:,eval_exclude_kpt:,:,:].cpu().numpy())
 
             acc.update(avg_acc, cnt)
-
+            
             # measure elapsed time
             batch_time.update(time.time() - end)
             end = time.time()

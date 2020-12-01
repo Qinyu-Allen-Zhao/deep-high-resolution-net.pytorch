@@ -62,6 +62,11 @@ def parse_args():
                         type=str,
                         default='')
 
+    parser.add_argument('--evalExcludeKpt',
+                        help='first x number of keypoint to exlude in evaluation',
+                        type=int,
+                        required=True)
+
     args = parser.parse_args()
     return args
 
@@ -123,7 +128,7 @@ def main():
 
     # evaluate on validation set
     validate(cfg, valid_loader, valid_dataset, model, criterion,
-             final_output_dir, tb_log_dir)
+             final_output_dir, tb_log_dir, eval_exclude_kpt=args.evalExcludeKpt)
 
 
 if __name__ == '__main__':
