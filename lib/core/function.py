@@ -151,11 +151,12 @@ def validate(config, val_loader, val_dataset, model, criterion, output_dir,
             num_images = input.size(0)
             # measure accuracy and record loss
             losses.update(loss.item(), num_images)
+            # visualization is done in accuracy
             _, avg_acc, cnt, pred = accuracy(output[:,eval_exclude_kpt:,:,:].cpu().numpy(),
                                              target[:,eval_exclude_kpt:,:,:].cpu().numpy())
 
             acc.update(avg_acc, cnt)
-            
+
             # measure elapsed time
             batch_time.update(time.time() - end)
             end = time.time()

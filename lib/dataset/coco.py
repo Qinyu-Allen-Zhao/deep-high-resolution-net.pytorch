@@ -440,7 +440,7 @@ class COCODataset(JointsDataset):
         coco_eval.evaluate()
         coco_eval.accumulate()
         coco_eval.summarize()
-
+        # print("coco_eval.stats", coco_eval.stats)
         stats_names = ['AP', 'Ap .5', 'AP .75', 'AP (M)', 'AP (L)', 'AR', 'AR .5', 'AR .75', 'AR (M)', 'AR (L)']
 
         info_str = []
