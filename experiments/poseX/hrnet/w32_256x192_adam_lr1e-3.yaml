@@ -13,15 +13,17 @@ PRINT_FREQ: 40
 DATASET:
   COLOR_RGB: true
   DATASET: 'coco'
-  DATA_FORMAT: jpg
+  # DATA_FORMAT: jpg
+  DATA_FORMAT: png
   FLIP: true
   NUM_JOINTS_HALF_BODY: 8
   PROB_HALF_BODY: 0.3
-  ROOT: 'data/poseXv060/'
+  ROOT: 'data/poseXv060-occ1/'
   ROT_FACTOR: 45
   SCALE_FACTOR: 0.35
-  TEST_SET: 'valid_v060'
-  TRAIN_SET: 'train_v060'
+  TEST_SET: 'valid_v060-occ1'
+  # TEST_SET: 'test_v060-occ1'
+  TRAIN_SET: 'train_v060-occ1'
 MODEL:
   INIT_WEIGHTS: true
   NAME: pose_hrnet

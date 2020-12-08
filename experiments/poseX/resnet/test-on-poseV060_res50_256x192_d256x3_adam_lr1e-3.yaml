@@ -15,6 +15,8 @@ PRINT_FREQ: 20
 DATASET:
   COLOR_RGB: false
   DATASET: 'coco'
+  DATA_FORMAT: jpg  
+  # DATA_FORMAT: png
   ROOT: 'data/poseXv060/'
   # TEST_SET: 'valid_v060'
   TEST_SET: 'test_v060'
