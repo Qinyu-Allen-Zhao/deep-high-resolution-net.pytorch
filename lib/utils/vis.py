@@ -16,6 +16,13 @@ import cv2
 
 from core.inference import get_max_preds
 
+joints_vis_color = [[250, 0, 0], [200, 50, 0], [200, 0, 50], [250, 50, 50], [0, 250, 250],
+                    [150, 250, 0], [250, 150, 0],
+                    [100, 250, 0], [250, 200, 0],
+                    [0, 250, 0], [250, 250, 0],
+                    [0, 150, 250], [0, 250, 50],
+                    [0, 100, 250], [0, 250, 150],
+                    [0, 0, 250], [0, 250, 200] ]
 
 def save_batch_image_with_joints(batch_image, batch_joints, batch_joints_vis,
                                  file_name, nrow=8, padding=2):
@@ -45,8 +52,9 @@ def save_batch_image_with_joints(batch_image, batch_joints, batch_joints_vis,
             for joint, joint_vis in zip(joints, joints_vis):
                 joint[0] = x * width + padding + joint[0]
                 joint[1] = y * height + padding + joint[1]
+                ind = joints.index(joint)
                 if joint_vis[0]:
-                    cv2.circle(ndarr, (int(joint[0]), int(joint[1])), 2, [255, 0, 0], 2)
+                    cv2.circle(ndarr, (int(joint[0]), int(joint[1])), 2, joints_vis_color[ind], 2)
             k = k + 1
     cv2.imwrite(file_name, ndarr)
 
