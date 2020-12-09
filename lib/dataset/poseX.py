@@ -2,6 +2,7 @@
 # Copyright (c) Microsoft
 # Licensed under the MIT License.
 # Written by Bin Xiao (Bin.Xiao@microsoft.com)
+# Adapted by Xinqi Zhu (u6314203@anu.edu.au)
 # ------------------------------------------------------------------------------
 
 from __future__ import absolute_import
@@ -12,6 +13,7 @@ from collections import defaultdict
 from collections import OrderedDict
 import logging
 import os
+import math
 
 from pycocotools.coco import COCO
 from pycocotools.cocoeval import COCOeval
@@ -26,14 +28,14 @@ from nms.nms import soft_oks_nms
 logger = logging.getLogger(__name__)
 
 
-class COCODataset(JointsDataset):
+class PoseXDataset(JointsDataset):
     '''
     "keypoints": {
-        0: "nose",
-        1: "left_eye",
-        2: "right_eye",
-        3: "left_ear",
-        4: "right_ear",
+        0: "HeadTop",
+        1: "Jaw",
+        2: "NeckTop",
+        3: "NeckBottom",
+        4: "Chest",
         5: "left_shoulder",
         6: "right_shoulder",
         7: "left_elbow",
@@ -365,13 +367,13 @@ class COCODataset(JointsDataset):
             info_str = self._do_python_keypoint_eval(
                 res_file, res_folder)
             name_value = OrderedDict(info_str)
-            return name_value, name_value['AP']
+            return name_value, name_value['Mean']
         else:
             # return {'Null': 0}, 0
             info_str = self._do_python_keypoint_eval(
                 res_file, res_folder)
             name_value = OrderedDict(info_str)
-            return name_value, name_value['AP']
+            return name_value, name_value['Mean']
 
     def _write_coco_keypoint_results(self, keypoints, res_file):
         data_pack = [
@@ -443,11 +445,79 @@ class COCODataset(JointsDataset):
         coco_eval.evaluate()
         coco_eval.accumulate()
         coco_eval.summarize()
-        # print("coco_eval.stats", coco_eval.stats)
-        stats_names = ['AP', 'Ap .5', 'AP .75', 'AP (M)', 'AP (L)', 'AR', 'AR .5', 'AR .75', 'AR (M)', 'AR (L)']
+        stats_names = ['mAP(COCO)']
 
         info_str = []
         for ind, name in enumerate(stats_names):
             info_str.append((name, coco_eval.stats[ind]))
 
+        kpt_names = [
+            "HeadTop","Jaw","NeckTop","NeckBottom","Chest", # COCO: "nose","left_eye","right_eye","left_ear","right_ear",
+            "left_shoulder","right_shoulder","left_elbow","right_elbow",
+            "left_wrist","right_wrist","left_hip","right_hip",
+            "left_knee","right_knee","left_ankle","right_ankle"
+        ]
+        stats_names = ["HeadTop","Jaw","NeckTop","NeckBottom","Chest",
+                        "Shoulder","Elbow", "Wrist", "Hip", "Knee", "Ankle", "Mean"]
+        stats = self._poseX_PCKh_evaluate_accumulate_summarize(coco_eval)
+
+        for i, name in enumerate(stats_names):
+            if i<=5:
+                # val_str = "{:.2%}".format(stats[i])
+                val_str = stats[i]
+            elif i <= 10:
+                # val_str = "{:.2%}".format(0.5*(stats[2*(i-5)+5] + stats[2*(i-5)+5+1]))
+                val_str = 0.5*(stats[2*(i-5)+5] + stats[2*(i-5)+5+1])
+            info_str.append((name, val_str))
+
+        # info_str.append((stats_names[11], "{:.2%}".format(np.average(stats))))
+        info_str.append((stats_names[11], np.average(stats)))
+
         return info_str
+
+    def _poseX_PCKh_evaluate_accumulate_summarize(self, coco_eval):
+        '''
+        Run per image evaluation on given images and store results (a list of dict) in coco_eval.evalImgs
+        :return: None
+        '''
+        coco_eval._prepare()
+        p = coco_eval.params
+
+        # evaluate
+        half_head_len = []
+        kpt_evals = []
+        catId = 1 # only the human category
+        for imgId in p.imgIds:
+            gts = coco_eval._gts[imgId, catId]
+            dts = coco_eval._dts[imgId, catId]
+            """Assume single person!"""
+            gt = gts[0]
+            dt = dts[0]
+
+            kpt_eval = [-1 for x in range(gt["num_keypoints"])]
+            if gt["keypoints"][0] > 0 and gt["keypoints"][1] > 0 and gt["keypoints"][6] > 0 and gt["keypoints"][7] > 0:
+                # valid headtop and necktop
+                half_head_len.append(0.5*math.sqrt((gt["keypoints"][0]-gt["keypoints"][6])**2+(gt["keypoints"][1]-gt["keypoints"][7])**2))
+            else:
+                half_head_len.append(-1)
+                kpt_evals.append(kpt_eval)
+                continue
+
+            for i in range(gt["num_keypoints"]):
+                gt_kpt = gt["keypoints"][3*i: 3*i+2]
+                dt_kpt = dt["keypoints"][3*i: 3*i+2]
+                thres = half_head_len[-1]
+                dis = math.sqrt((gt_kpt[0]-dt_kpt[0])**2+(gt_kpt[1]-dt_kpt[1])**2)
+                if dis <= thres:
+                    kpt_eval[i] = 1
+                else:
+                    kpt_eval[i] = 0
+            kpt_evals.append(kpt_eval)
+
+        # accumulate
+        valid_ind = np.where(np.array(half_head_len)!=-1)
+        valid_evals = np.array(kpt_evals)[valid_ind]
+
+        # summarize
+        stats = np.average(valid_evals, axis=0)
+        return stats
