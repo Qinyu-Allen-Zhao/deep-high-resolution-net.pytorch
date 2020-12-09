@@ -15,11 +15,11 @@ PRINT_FREQ: 20
 DATASET:
   COLOR_RGB: false
   DATASET: 'poseX'
-  DATA_FORMAT: jpg
-  # DATA_FORMAT: png
-  ROOT: 'data/poseXv060/'
+  # DATA_FORMAT: jpg
+  DATA_FORMAT: png
+  ROOT: 'data/poseXv060-occ1/'
   # TEST_SET: 'valid_v060'
-  TEST_SET: 'test_v060'
+  TEST_SET: 'test_v060-occ1'
   # TRAIN_SET: 'train2017'
   FLIP: true
   ROT_FACTOR: 40

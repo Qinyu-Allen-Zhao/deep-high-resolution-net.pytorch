@@ -6,8 +6,8 @@ CUDNN:
 DATA_DIR: ''
 GPUS: (0,)
 # OUTPUT_DIR: 'output'
-# OUTPUT_DIR: 'output/test'
-OUTPUT_DIR: 'output/tmpt'
+OUTPUT_DIR: 'output/test'
+# OUTPUT_DIR: 'output/tmpt'
 LOG_DIR: 'log'
 WORKERS: 24
 PRINT_FREQ: 40

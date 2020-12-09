@@ -445,7 +445,7 @@ class PoseXDataset(JointsDataset):
         coco_eval.evaluate()
         coco_eval.accumulate()
         coco_eval.summarize()
-        stats_names = ['mAP(COCO)']
+        stats_names = ['mAP', 'Ap .5', 'AP .75', 'AP (M)', 'AP (L)', 'mAR', 'AR .5', 'AR .75', 'AR (M)', 'AR (L)']
 
         info_str = []
         for ind, name in enumerate(stats_names):
