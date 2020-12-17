@@ -483,6 +483,15 @@ class PoseXDataset(JointsDataset):
         coco_eval._prepare()
         p = coco_eval.params
 
+        # coco_eval.evaluate()
+        # for res in coco_eval.evalImgs:
+        #     if res is not None:
+        #         print(res["image_id"])
+        #         print("dtMatches", res["dtMatches"])
+        #         print("gtMatches", res["gtMatches"])
+                # print("dtIds", res["dtIds"]) #dtIds [5237]
+                # print("gtIds", res["gtIds"]) #gtIds [230831, 233201]
+
         # evaluate
         half_head_len = []
         kpt_evals = []
@@ -491,10 +500,15 @@ class PoseXDataset(JointsDataset):
             gts = coco_eval._gts[imgId, catId]
             dts = coco_eval._dts[imgId, catId]
             """Assume single person!"""
+            if len(gts) == 0 or len(dts)==0: continue
             gt = gts[0]
             dt = dts[0]
-
-            kpt_eval = [-1 for x in range(gt["num_keypoints"])]
+            # if gt["ignore"]: print("gt", gt['ignore'])
+            # if dt["ignore"]: print("dt", dt['ignore'])
+            # print("image", imgId)
+            # print("gts", gt["num_keypoints"], len(gt["keypoints"]))
+            # print("dts", len(dt["keypoints"]))
+            kpt_eval = [-1 for x in range(int(len(gt["keypoints"])/3))]
             if gt["keypoints"][0] > 0 and gt["keypoints"][1] > 0 and gt["keypoints"][6] > 0 and gt["keypoints"][7] > 0:
                 # valid headtop and necktop
                 half_head_len.append(0.5*math.sqrt((gt["keypoints"][0]-gt["keypoints"][6])**2+(gt["keypoints"][1]-gt["keypoints"][7])**2))
@@ -503,7 +517,7 @@ class PoseXDataset(JointsDataset):
                 kpt_evals.append(kpt_eval)
                 continue
 
-            for i in range(gt["num_keypoints"]):
+            for i in range(int(len(gt["keypoints"])/3)):
                 gt_kpt = gt["keypoints"][3*i: 3*i+2]
                 dt_kpt = dt["keypoints"][3*i: 3*i+2]
                 thres = half_head_len[-1]
