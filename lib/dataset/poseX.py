@@ -493,7 +493,7 @@ class PoseXDataset(JointsDataset):
                 # print("gtIds", res["gtIds"]) #gtIds [230831, 233201]
 
         # evaluate
-        half_head_len = []
+        half_uArm_len = []
         kpt_evals = []
         catId = 1 # only the human category
         for imgId in p.imgIds:
@@ -509,18 +509,18 @@ class PoseXDataset(JointsDataset):
             # print("gts", gt["num_keypoints"], len(gt["keypoints"]))
             # print("dts", len(dt["keypoints"]))
             kpt_eval = [-1 for x in range(int(len(gt["keypoints"])/3))]
-            if gt["keypoints"][0] > 0 and gt["keypoints"][1] > 0 and gt["keypoints"][6] > 0 and gt["keypoints"][7] > 0:
+            if gt["keypoints"][15] > 0 and gt["keypoints"][16] > 0 and gt["keypoints"][21] > 0 and gt["keypoints"][22] > 0:
                 # valid headtop and necktop
-                half_head_len.append(0.5*math.sqrt((gt["keypoints"][0]-gt["keypoints"][6])**2+(gt["keypoints"][1]-gt["keypoints"][7])**2))
+                half_uArm_len.append(0.5*(25.61/34.98)*math.sqrt((gt["keypoints"][15]-gt["keypoints"][21])**2+(gt["keypoints"][16]-gt["keypoints"][22])**2))
             else:
-                half_head_len.append(-1)
+                half_uArm_len.append(-1)
                 kpt_evals.append(kpt_eval)
                 continue
 
             for i in range(int(len(gt["keypoints"])/3)):
                 gt_kpt = gt["keypoints"][3*i: 3*i+2]
                 dt_kpt = dt["keypoints"][3*i: 3*i+2]
-                thres = half_head_len[-1]
+                thres = half_uArm_len[-1]
                 dis = math.sqrt((gt_kpt[0]-dt_kpt[0])**2+(gt_kpt[1]-dt_kpt[1])**2)
                 if dis <= thres:
                     kpt_eval[i] = 1
@@ -529,7 +529,7 @@ class PoseXDataset(JointsDataset):
             kpt_evals.append(kpt_eval)
 
         # accumulate
-        valid_ind = np.where(np.array(half_head_len)!=-1)
+        valid_ind = np.where(np.array(half_uArm_len)!=-1)
         valid_evals = np.array(kpt_evals)[valid_ind]
 
         # summarize
