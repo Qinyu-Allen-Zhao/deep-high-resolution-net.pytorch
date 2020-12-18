@@ -6,7 +6,7 @@ CUDNN:
 DATA_DIR: ''
 GPUS: (0,)
 # OUTPUT_DIR: 'output'
-OUTPUT_DIR: 'output/test'
+OUTPUT_DIR: 'output/v060/test'
 # OUTPUT_DIR: 'output/tmpt'
 LOG_DIR: 'log'
 WORKERS: 24
@@ -20,7 +20,7 @@ DATASET:
   ROOT: 'data/poseXv060/'
   # TEST_SET: 'valid_v060'
   TEST_SET: 'test_v060'
-  # TRAIN_SET: 'train2017'
+  TRAIN_SET: 'train2017'
   FLIP: true
   ROT_FACTOR: 40
   SCALE_FACTOR: 0.3

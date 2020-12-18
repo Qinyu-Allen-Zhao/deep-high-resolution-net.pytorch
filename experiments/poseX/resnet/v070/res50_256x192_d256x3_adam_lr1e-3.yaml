@@ -5,8 +5,8 @@ CUDNN:
   ENABLED: true
 DATA_DIR: ''
 GPUS: (0,)
-# OUTPUT_DIR: 'output'
-OUTPUT_DIR: 'output/test'
+OUTPUT_DIR: 'output/v070/test'
+# OUTPUT_DIR: 'output/test'
 # OUTPUT_DIR: 'output/tmpt'
 LOG_DIR: 'log'
 WORKERS: 24
@@ -14,12 +14,13 @@ PRINT_FREQ: 40
 
 DATASET:
   COLOR_RGB: false
-  DATASET: 'coco'
-  DATA_FORMAT: jpg
-  ROOT: 'data/coco/'
-  TEST_SET: 'val2017'
-  # TEST_SET: 'test_v060'
-  # TRAIN_SET: 'train2017'
+  DATASET: 'poseX'
+  # DATA_FORMAT: jpg
+  DATA_FORMAT: png
+  ROOT: 'data/poseXv070/'
+  # TEST_SET: 'valid_v060'
+  TEST_SET: 'test_v070'
+  TRAIN_SET: 'train_v070'
   FLIP: true
   ROT_FACTOR: 40
   SCALE_FACTOR: 0.3
@@ -68,7 +69,7 @@ TRAIN:
   NESTEROV: false
 TEST:
   BATCH_SIZE_PER_GPU: 16
-  COCO_BBOX_FILE: 'data/coco/person_detection_results/COCO_val2017_detections_AP_H_56_person.json'
+#  COCO_BBOX_FILE: 'data/coco/person_detection_results/COCO_val2017_detections_AP_H_56_person.json'
   BBOX_THRE: 1.0
   IMAGE_THRE: 0.0
   IN_VIS_THRE: 0.2
