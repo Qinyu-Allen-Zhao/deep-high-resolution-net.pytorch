@@ -5,7 +5,13 @@ import os.path as osp
 import numpy as np
 import json
 
-# run this code in the 'mpii_human_pose_v1_u12_2' folder
+try:
+    from tqdm import tqdm
+except ImportError:
+    # If tqdm is not available, provide a mock version of it
+    def tqdm(x):
+        return x
+# required file: mpii_human_pose_v1_u12_1.mat
 
 def check_empty(list,name):
 
@@ -19,10 +25,24 @@ def check_empty(list,name):
     else:
         return True
 
+val_imgs = dict() # len = 2729
+def get_val_imgs():
+    val_json_path = "data/mpii/annot/valid.json"
+    with open(val_json_path, "r") as f:
+        val_json = json.load(f)
+        for entry in val_json:
+            if entry["image"] not in val_imgs.keys():
+                val_imgs[entry["image"]] = 0
+            val_imgs[entry["image"]] += 1
 
-db_type = 'train' # train, test
+def is_train(img_name):
+    if not val_imgs:
+        get_val_imgs()
+    return img_name not in val_imgs.keys()
+
+db_type = 'valid' # train, valid, test
 annot_file = loadmat('data/mpii/mpii_human_pose_v1_u12_2/mpii_human_pose_v1_u12_1')['RELEASE']
-save_path = 'tmpt/' + db_type + '.json'
+save_path = 'tmpt/2nd/' + "person_keypoints_" + db_type + '.json'
 img_path = "data/mpii/images/train/"
 
 joint_num = 16
@@ -73,19 +93,28 @@ coco = {
     "categories": [],
 }
 
-for img_id in range(img_num):
+skip_cnt = 0
+for img_id in tqdm(range(img_num)):
+    img_name = str(annot_file['annolist'][0][0][0][img_id]['image'][0][0][0][0])
+    if db_type=="train" and not is_train(img_name):
+        skip_cnt+=1
+        continue
+    if db_type=="valid" and is_train(img_name):
+        skip_cnt+=1
+        continue
 
-    if ((db_type == 'train' and annot_file['img_train'][0][0][0][img_id] == 1) or (db_type == 'test' and annot_file['img_train'][0][0][0][img_id] == 0)) and \
+    if (((db_type == 'train' or db_type == 'valid') and annot_file['img_train'][0][0][0][img_id] == 1) or (db_type == 'test' and annot_file['img_train'][0][0][0][img_id] == 0)) and \
         check_empty(annot_file['annolist'][0][0][0][img_id],'annorect') == False: #any person is annotated
 
-        filename = img_path + str(annot_file['annolist'][0][0][0][img_id]['image'][0][0][0][0]) #filename
+        filename = img_path + img_name #filename
+
         img = Image.open(filename)
         w,h = img.size
         img_dict = {'id': img_id, 'file_name': filename, 'width': w, 'height': h}
         coco['images'].append(img_dict)
 
-        # if db_type == 'test':
-        #     continue
+        if db_type == 'test':
+            continue
 
         person_num = len(annot_file['annolist'][0][0][0][img_id]['annorect'][0]) #person_num
         joint_annotated = np.zeros((person_num,joint_num))
@@ -192,3 +221,5 @@ coco['categories'] = categories
 
 with open(save_path, 'w') as f:
     json.dump(coco, f)
+print("skip count:", skip_cnt)
+print("Total:", img_num)
