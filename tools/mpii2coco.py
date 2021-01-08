@@ -4,6 +4,7 @@ import os
 import os.path as osp
 import numpy as np
 import json
+import shutil
 
 try:
     from tqdm import tqdm
@@ -40,9 +41,11 @@ def is_train(img_name):
         get_val_imgs()
     return img_name not in val_imgs.keys()
 
-db_type = 'valid' # train, valid, test
+"""change this to train, valid, test ot obtain different data split"""
+db_type = 'valid'
 annot_file = loadmat('data/mpii/mpii_human_pose_v1_u12_2/mpii_human_pose_v1_u12_1')['RELEASE']
-save_path = 'tmpt/2nd/' + "person_keypoints_" + db_type + '.json'
+save_path = 'mpiiINcoco/' + "person_keypoints_" + db_type + '.json'
+cpy_des_path = 'mpiiINcoco/' + db_type
 img_path = "data/mpii/images/train/"
 
 joint_num = 16
@@ -110,8 +113,9 @@ for img_id in tqdm(range(img_num)):
 
         img = Image.open(filename)
         w,h = img.size
-        img_dict = {'id': img_id, 'file_name': filename, 'width': w, 'height': h}
+        img_dict = {'id': img_id, 'file_name': "%012d.jpg" % img_id, 'width': w, 'height': h}
         coco['images'].append(img_dict)
+        shutil.copy(filename, cpy_des_path+ "/"+"%012d.jpg" % img_id)
 
         if db_type == 'test':
             continue
