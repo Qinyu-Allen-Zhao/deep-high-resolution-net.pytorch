@@ -108,7 +108,7 @@ def main():
     dump_input = torch.rand(
         (1, 3, cfg.MODEL.IMAGE_SIZE[1], cfg.MODEL.IMAGE_SIZE[0])
     )
-    writer_dict['writer'].add_graph(model, (dump_input, ))
+    # writer_dict['writer'].add_graph(model, (dump_input, )) # Failed to export an ONNX attribute, since it's not constant, please try to make things (e.g., kernel size) static if possible
 
     logger.info(get_model_summary(model, dump_input))
 
