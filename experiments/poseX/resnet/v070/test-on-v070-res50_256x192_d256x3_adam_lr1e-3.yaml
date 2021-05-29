@@ -5,7 +5,7 @@ CUDNN:
   ENABLED: true
 DATA_DIR: ''
 GPUS: (0,1)
-OUTPUT_DIR: 'output/v100_merged-cross'
+OUTPUT_DIR: 'output/v070-cross'
 LOG_DIR: 'log'
 WORKERS: 24
 PRINT_FREQ: 40
@@ -15,8 +15,8 @@ DATASET:
   DATASET: 'poseX2'
   # DATA_FORMAT: jpg
   DATA_FORMAT: png
-  ROOT: 'data/poseXv100_merged/'
-  TEST_SET: 'valid_v100_merged'
+  ROOT: 'data/poseXv070/'
+  TEST_SET: 'valid_v070'
   # TRAIN_SET: 'train2017'
   FLIP: true
   ROT_FACTOR: 40

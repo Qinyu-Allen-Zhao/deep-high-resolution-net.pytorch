@@ -1,8 +1,36 @@
-### train on poseXv100-merged, test on 
+### train on COCO, test on poseXv070
+
++ CUDA_VISIBLE_DEVICES=2,3 python tools/test.py --evalExcludeKpt 5 --cfg experiments/poseX/resnet/v070/test-on-v070-res50_256x192_d256x3_adam_lr1e-3.yaml  TEST.MODEL_FILE models/pytorch/pose_coco/pose_resnet_50_256x192.pth  TEST.USE_GT_BBOX True
++ CUDA_VISIBLE_DEVICES=0,1 python tools/test.py --evalExcludeKpt 5 --cfg experiments/poseX/resnet/v070/test-on-v070-res50_384x288_d256x3_adam_lr1e-3.yaml  TEST.MODEL_FILE models/pytorch/pose_coco/pose_resnet_50_384x288.pth  TEST.USE_GT_BBOX True
++ CUDA_VISIBLE_DEVICES=2,3 python tools/test.py --evalExcludeKpt 5 --cfg experiments/poseX/resnet/v070/test-on-v070-res101_256x192_d256x3_adam_lr1e-3.yaml  TEST.MODEL_FILE models/pytorch/pose_coco/pose_resnet_101_256x192.pth  TEST.USE_GT_BBOX True
++ CUDA_VISIBLE_DEVICES=0,1 python tools/test.py --evalExcludeKpt 5 --cfg experiments/poseX/resnet/v070/test-on-v070-res101_384x288_d256x3_adam_lr1e-3.yaml  TEST.MODEL_FILE models/pytorch/pose_coco/pose_resnet_101_384x288.pth  TEST.USE_GT_BBOX True
 
 
 
++ CUDA_VISIBLE_DEVICES=2,3 python tools/test.py --evalExcludeKpt 5 --cfg experiments/poseX/hrnet/v070/test-on-v070-w32_256x192_adam_lr1e-3.yaml  TEST.MODEL_FILE models/pytorch/pose_coco/pose_hrnet_w32_256x192.pth  TEST.USE_GT_BBOX True
++ CUDA_VISIBLE_DEVICES=0,1 python tools/test.py --evalExcludeKpt 5 --cfg experiments/poseX/hrnet/v070/test-on-v070-w32_384x288_adam_lr1e-3.yaml  TEST.MODEL_FILE models/pytorch/pose_coco/pose_hrnet_w32_384x288.pth  TEST.USE_GT_BBOX True
++ CUDA_VISIBLE_DEVICES=2,3 python tools/test.py --evalExcludeKpt 5 --cfg experiments/poseX/hrnet/v070/test-on-v070-w48_256x192_adam_lr1e-3.yaml  TEST.MODEL_FILE models/pytorch/pose_coco/pose_hrnet_w48_256x192.pth  TEST.USE_GT_BBOX True
++ CUDA_VISIBLE_DEVICES=0,1 python tools/test.py --evalExcludeKpt 5 --cfg experiments/poseX/hrnet/v070/test-on-v070-w48_384x288_adam_lr1e-3.yaml  TEST.MODEL_FILE models/pytorch/pose_coco/pose_hrnet_w48_384x288.pth  TEST.USE_GT_BBOX True
 
+---
+
+### train on COCO, test on poseXv100
+
++ CUDA_VISIBLE_DEVICES=2,3 python tools/test.py --evalExcludeKpt 5 --cfg experiments/poseX/resnet/v100-merged/test-on-v100-merged-res50_256x192_d256x3_adam_lr1e-3.yaml  TEST.MODEL_FILE models/pytorch/pose_coco/pose_resnet_50_256x192.pth  TEST.USE_GT_BBOX True
++ CUDA_VISIBLE_DEVICES=0,1 python tools/test.py --evalExcludeKpt 5 --cfg experiments/poseX/resnet/v100-merged/test-on-v100-merged-res50_384x288_d256x3_adam_lr1e-3.yaml  TEST.MODEL_FILE models/pytorch/pose_coco/pose_resnet_50_384x288.pth  TEST.USE_GT_BBOX True
++ CUDA_VISIBLE_DEVICES=2,3 python tools/test.py --evalExcludeKpt 5 --cfg experiments/poseX/resnet/v100-merged/test-on-v100-merged-res101_256x192_d256x3_adam_lr1e-3.yaml  TEST.MODEL_FILE models/pytorch/pose_coco/pose_resnet_101_256x192.pth  TEST.USE_GT_BBOX True
++ CUDA_VISIBLE_DEVICES=0,1 python tools/test.py --evalExcludeKpt 5 --cfg experiments/poseX/resnet/v100-merged/test-on-v100-merged-res101_384x288_d256x3_adam_lr1e-3.yaml  TEST.MODEL_FILE models/pytorch/pose_coco/pose_resnet_101_384x288.pth  TEST.USE_GT_BBOX True
+
+
+
++ CUDA_VISIBLE_DEVICES=2,3 python tools/test.py --evalExcludeKpt 5 --cfg experiments/poseX/hrnet/v100-merged/test-on-v100-merged-w32_256x192_adam_lr1e-3.yaml  TEST.MODEL_FILE models/pytorch/pose_coco/pose_hrnet_w32_256x192.pth  TEST.USE_GT_BBOX True
++ CUDA_VISIBLE_DEVICES=0,1 python tools/test.py --evalExcludeKpt 5 --cfg experiments/poseX/hrnet/v100-merged/test-on-v100-merged-w32_384x288_adam_lr1e-3.yaml  TEST.MODEL_FILE models/pytorch/pose_coco/pose_hrnet_w32_384x288.pth  TEST.USE_GT_BBOX True
++ CUDA_VISIBLE_DEVICES=2,3 python tools/test.py --evalExcludeKpt 5 --cfg experiments/poseX/hrnet/v100-merged/test-on-v100-merged-w48_256x192_adam_lr1e-3.yaml  TEST.MODEL_FILE models/pytorch/pose_coco/pose_hrnet_w48_256x192.pth  TEST.USE_GT_BBOX True
++ CUDA_VISIBLE_DEVICES=0,1 python tools/test.py --evalExcludeKpt 5 --cfg experiments/poseX/hrnet/v100-merged/test-on-v100-merged-w48_384x288_adam_lr1e-3.yaml  TEST.MODEL_FILE models/pytorch/pose_coco/pose_hrnet_w48_384x288.pth  TEST.USE_GT_BBOX True
+
+
+
+---
 
 #### train on poseXv090, test on coco
 
