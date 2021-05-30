@@ -1,6 +1,6 @@
 ### train on COCO, test on mpii_in_coco
 
-+ CUDA_VISIBLE_DEVICES=2,3 python tools/test.py --evalExcludeKpt 5 --cfg experiments/poseX/resnet/mpii_in_cocotest-on-mpii-in-coco-res50_256x192_d256x3_adam_lr1e-3.yaml  TEST.MODEL_FILE models/pytorch/pose_coco/pose_resnet_50_256x192.pth  TEST.USE_GT_BBOX True
++ CUDA_VISIBLE_DEVICES=2,3 python tools/test.py --evalExcludeKpt 5 --cfg experiments/poseX/resnet/mpii_in_coco/test-on-mpii-in-coco-res50_256x192_d256x3_adam_lr1e-3.yaml  TEST.MODEL_FILE models/pytorch/pose_coco/pose_resnet_50_256x192.pth  TEST.USE_GT_BBOX True
 
   
 
