@@ -15,7 +15,7 @@ DATASET:
   DATASET: 'poseX2'
   DATA_FORMAT: jpg
   ROOT: 'data/mpii_in_coco/'
-  TEST_SET: 'valid'
+  TEST_SET: 'train_partition2k'
   # TRAIN_SET: 'train2017'
   FLIP: true
   ROT_FACTOR: 40
