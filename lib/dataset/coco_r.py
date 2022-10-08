@@ -2,7 +2,6 @@
 # Copyright (c) Microsoft
 # Licensed under the MIT License.
 # Written by Bin Xiao (Bin.Xiao@microsoft.com)
-# Adapted by Xinqi Zhu (u6314203@anu.edu.au)
 # ------------------------------------------------------------------------------
 
 from __future__ import absolute_import
@@ -13,7 +12,6 @@ from collections import defaultdict
 from collections import OrderedDict
 import logging
 import os
-import math
 
 from pycocotools.coco import COCO
 from pycocotools.cocoeval import COCOeval
@@ -28,14 +26,14 @@ from nms.nms import soft_oks_nms
 logger = logging.getLogger(__name__)
 
 
-class PoseXDataset(JointsDataset):
+class COCODataset(JointsDataset):
     '''
     "keypoints": {
-        0: "HeadTop",
-        1: "Jaw",
-        2: "NeckTop",
-        3: "NeckBottom",
-        4: "Chest",
+        0: "nose",
+        1: "left_eye",
+        2: "right_eye",
+        3: "left_ear",
+        4: "right_ear",
         5: "left_shoulder",
         6: "right_shoulder",
         7: "left_elbow",
@@ -114,7 +112,7 @@ class PoseXDataset(JointsDataset):
     def _get_ann_file_keypoint(self):
         """ self.root / annotations / person_keypoints_train2017.json """
         prefix = 'person_keypoints' \
-            if 'test' not in self.image_set else 'person_keypoints'
+            if 'test' not in self.image_set else 'image_info'
         return os.path.join(
             self.root,
             'annotations',
@@ -164,10 +162,13 @@ class PoseXDataset(JointsDataset):
         valid_objs = []
         for obj in objs:
             x, y, w, h = obj['bbox']
-            x1 = np.max((0, x))
-            y1 = np.max((0, y))
-            x2 = np.min((width - 1, x1 + np.max((0, w - 1))))
-            y2 = np.min((height - 1, y1 + np.max((0, h - 1))))
+            r1 = np.random.randint(20)
+            r2 = np.random.randint(20)
+
+            x1 = np.max((0, x-r1))
+            y1 = np.max((0, y-r2))
+            x2 = np.min((width - 1, x1 + np.max((0, w - 1)) + r1 * 2))
+            y2 = np.min((height - 1, y1 + np.max((0, h - 1)) + r2 * 2))
             if obj['area'] > 0 and x2 >= x1 and y2 >= y1:
                 obj['clean_bbox'] = [x1, y1, x2-x1, y2-y1]
                 valid_objs.append(obj)
@@ -232,15 +233,11 @@ class PoseXDataset(JointsDataset):
 
     def image_path_from_index(self, index):
         """ example: images / train2017 / 000000119993.jpg """
-        if self.data_format == "jpg":
-            file_name = '%012d.jpg' % index
-        elif self.data_format == "png":
-            file_name = '%012d.png' % index
+        file_name = '%012d.jpg' % index
         if '2014' in self.image_set:
             file_name = 'COCO_%s_' % self.image_set + file_name
 
-        # prefix = 'test2017' if 'test' in self.image_set else self.image_set
-        prefix = self.image_set if 'test' in self.image_set else self.image_set
+        prefix = 'test2017' if 'test' in self.image_set else self.image_set
 
         data_name = prefix + '.zip@' if self.data_format == 'zip' else prefix
 
@@ -268,6 +265,13 @@ class PoseXDataset(JointsDataset):
                 continue
             img_name = self.image_path_from_index(det_res['image_id'])
             box = det_res['bbox']
+            r1 = np.random.randint(20)
+            r2 = np.random.randint(20)
+            box[0] -= r1
+            box[1] -= r2
+            box[2] += r1 * 2
+            box[3] += r2 * 2
+
             score = det_res['score']
 
             if score < self.image_thre:
@@ -367,13 +371,9 @@ class PoseXDataset(JointsDataset):
             info_str = self._do_python_keypoint_eval(
                 res_file, res_folder)
             name_value = OrderedDict(info_str)
-            return name_value, name_value['Mean']
+            return name_value, name_value['AP']
         else:
-            # return {'Null': 0}, 0
-            info_str = self._do_python_keypoint_eval(
-                res_file, res_folder)
-            name_value = OrderedDict(info_str)
-            return name_value, name_value['Mean']
+            return {'Null': 0}, 0
 
     def _write_coco_keypoint_results(self, keypoints, res_file):
         data_pack = [
@@ -426,7 +426,7 @@ class PoseXDataset(JointsDataset):
             result = [
                 {
                     'image_id': img_kpts[k]['image'],
-               xr     'category_id': cat_id,
+                    'category_id': cat_id,
                     'keypoints': list(key_points[k]),
                     'score': img_kpts[k]['score'],
                     'center': list(img_kpts[k]['center']),
@@ -445,93 +445,11 @@ class PoseXDataset(JointsDataset):
         coco_eval.evaluate()
         coco_eval.accumulate()
         coco_eval.summarize()
-        stats_names = ['mAP', 'Ap .5', 'AP .75', 'AP (M)', 'AP (L)', 'mAR', 'AR .5', 'AR .75', 'AR (M)', 'AR (L)']
+
+        stats_names = ['AP', 'Ap .5', 'AP .75', 'AP (M)', 'AP (L)', 'AR', 'AR .5', 'AR .75', 'AR (M)', 'AR (L)']
 
         info_str = []
         for ind, name in enumerate(stats_names):
             info_str.append((name, coco_eval.stats[ind]))
 
-        kpt_names = [
-            "HeadTop","Jaw","NeckTop","NeckBottom","Chest", # COCO: "nose","left_eye","right_eye","left_ear","right_ear",
-            "left_shoulder","right_shoulder","left_elbow","right_elbow",
-            "left_wrist","right_wrist","left_hip","right_hip",
-            "left_knee","right_knee","left_ankle","right_ankle"
-        ]
-        stats_names = ["HeadTop","Jaw","NeckTop","NeckBottom","Chest",
-                        "Shoulder","Elbow", "Wrist", "Hip", "Knee", "Ankle", "Mean"]
-        stats = self._poseX_PCKh_evaluate_accumulate_summarize(coco_eval)
-
-        for i, name in enumerate(stats_names):
-            if i<=5:
-                # val_str = "{:.2%}".format(stats[i])
-                val_str = stats[i]
-            elif i <= 10:
-                # val_str = "{:.2%}".format(0.5*(stats[2*(i-5)+5] + stats[2*(i-5)+5+1]))
-                val_str = 0.5*(stats[2*(i-5)+5] + stats[2*(i-5)+5+1])
-            info_str.append((name, val_str))
-
-        # info_str.append((stats_names[11], "{:.2%}".format(np.average(stats))))
-        info_str.append((stats_names[11], np.average(stats)))
-
         return info_str
-
-    def _poseX_PCKh_evaluate_accumulate_summarize(self, coco_eval):
-        '''
-        Run per image evaluation on given images and store results (a list of dict) in coco_eval.evalImgs
-        :return: None
-        '''
-        coco_eval._prepare()
-        p = coco_eval.params
-
-        # coco_eval.evaluate()
-        # for res in coco_eval.evalImgs:
-        #     if res is not None:
-        #         print(res["image_id"])
-        #         print("dtMatches", res["dtMatches"])
-        #         print("gtMatches", res["gtMatches"])
-                # print("dtIds", res["dtIds"]) #dtIds [5237]
-                # print("gtIds", res["gtIds"]) #gtIds [230831, 233201]
-
-        # evaluate
-        half_uArm_len = []
-        kpt_evals = []
-        catId = 1 # only the human category
-        for imgId in p.imgIds:
-            gts = coco_eval._gts[imgId, catId]
-            dts = coco_eval._dts[imgId, catId]
-            """Assume single person!"""
-            if len(gts) == 0 or len(dts)==0: continue
-            gt = gts[0]
-            dt = dts[0]
-            # if gt["ignore"]: print("gt", gt['ignore'])
-            # if dt["ignore"]: print("dt", dt['ignore'])
-            # print("image", imgId)
-            # print("gts", gt["num_keypoints"], len(gt["keypoints"]))
-            # print("dts", len(dt["keypoints"]))
-            kpt_eval = [-1 for x in range(int(len(gt["keypoints"])/3))]
-            if gt["keypoints"][15] > 0 and gt["keypoints"][16] > 0 and gt["keypoints"][21] > 0 and gt["keypoints"][22] > 0:
-                # valid headtop and necktop
-                half_uArm_len.append(0.5*(25.61/34.98)*math.sqrt((gt["keypoints"][15]-gt["keypoints"][21])**2+(gt["keypoints"][16]-gt["keypoints"][22])**2))
-            else:
-                half_uArm_len.append(-1)
-                kpt_evals.append(kpt_eval)
-                continue
-
-            for i in range(int(len(gt["keypoints"])/3)):
-                gt_kpt = gt["keypoints"][3*i: 3*i+2]
-                dt_kpt = dt["keypoints"][3*i: 3*i+2]
-                thres = half_uArm_len[-1]
-                dis = math.sqrt((gt_kpt[0]-dt_kpt[0])**2+(gt_kpt[1]-dt_kpt[1])**2)
-                if dis <= thres:
-                    kpt_eval[i] = 1
-                else:
-                    kpt_eval[i] = 0
-            kpt_evals.append(kpt_eval)
-
-        # accumulate
-        valid_ind = np.where(np.array(half_uArm_len)!=-1)
-        valid_evals = np.array(kpt_evals)[valid_ind]
-
-        # summarize
-        stats = np.average(valid_evals, axis=0)
-        return stats
