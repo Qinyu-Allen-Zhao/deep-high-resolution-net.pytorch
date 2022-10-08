@@ -33,21 +33,22 @@ class MPIIDataset(JointsDataset):
         self.upper_body_ids = (7, 8, 9, 10, 11, 12, 13, 14, 15)
         self.lower_body_ids = (0, 1, 2, 3, 4, 5, 6)
 
-        self.db = self._get_db()
-
         if is_train and cfg.DATASET.SELECT_DATA:
-            self.db = self.select_data(self.db)
+            self.db = self._get_db(num = 1000)
+        else:
+            self.db = self._get_db()
 
         logger.info('=> load {} samples'.format(len(self.db)))
 
-    def _get_db(self):
+    def _get_db(self, num = -1):
         # create train/val split
         file_name = os.path.join(
             self.root, 'annot', self.image_set+'.json'
         )
         with open(file_name) as anno_file:
             anno = json.load(anno_file)
-
+            if num > 0:
+                anno = np.random.choice(anno, size=num, replace=False)
         gt_db = []
         for a in anno:
             image_name = a['image']
@@ -107,7 +108,7 @@ class MPIIDataset(JointsDataset):
         SC_BIAS = 0.6
         threshold = 0.5
 
-        gt_file = os.path.join(cfg.DATASET.ROOT,
+        gt_file = os.path.join(cfg.DATASET.TEST_ROOT,
                                'annot',
                                'gt_{}.mat'.format(cfg.DATASET.TEST_SET))
         gt_dict = loadmat(gt_file)

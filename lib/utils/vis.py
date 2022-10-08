@@ -16,13 +16,6 @@ import cv2
 
 from core.inference import get_max_preds
 
-joints_vis_color = [[250, 0, 0], [200, 50, 0], [200, 0, 50], [250, 50, 50], [0, 250, 250],
-                    [150, 250, 0], [250, 150, 0],
-                    [100, 250, 0], [250, 200, 0],
-                    [0, 250, 0], [250, 250, 0],
-                    [0, 150, 250], [0, 250, 50],
-                    [0, 100, 250], [0, 250, 150],
-                    [0, 0, 250], [0, 250, 200] ]
 
 def save_batch_image_with_joints(batch_image, batch_joints, batch_joints_vis,
                                  file_name, nrow=8, padding=2):
@@ -34,8 +27,6 @@ def save_batch_image_with_joints(batch_image, batch_joints, batch_joints_vis,
     '''
     grid = torchvision.utils.make_grid(batch_image, nrow, padding, True)
     ndarr = grid.mul(255).clamp(0, 255).byte().permute(1, 2, 0).cpu().numpy()
-    # ndarr = grid.mul(255).clamp(0, 255).permute(1, 2, 0).cpu().numpy()
-    # cv2.imwrite("test.jpg", ndarr)
     ndarr = ndarr.copy()
 
     nmaps = batch_image.size(0)
@@ -51,21 +42,12 @@ def save_batch_image_with_joints(batch_image, batch_joints, batch_joints_vis,
             joints = batch_joints[k]
             joints_vis = batch_joints_vis[k]
 
-            # print(k, ":", len(joints), ", vis:", len(joints_vis))
-            ind_offset = 17-len(joints)
-            # print(ind_offset)
             for joint, joint_vis in zip(joints, joints_vis):
                 joint[0] = x * width + padding + joint[0]
                 joint[1] = y * height + padding + joint[1]
-                ind = np.where((np.array(joints)==np.array(joint)).all(axis=1))[0][0]
                 if joint_vis[0]:
-                    cv2.circle(ndarr, (int(joint[0]), int(joint[1])), 2, joints_vis_color[ind_offset+ind], 2)
+                    cv2.circle(ndarr, (int(joint[0]), int(joint[1])), 2, [255, 0, 0], 2)
             k = k + 1
-    # rgb to bgr
-    # ndarr_test = np.zeros(ndarr.shape)
-    # ndarr_test[:,:,0] = ndarr[:,:,2]
-    # ndarr_test[:,:,1] = ndarr[:,:,1]
-    # ndarr_test[:,:,2] = ndarr[:,:,0]
     cv2.imwrite(file_name, ndarr)
 
 

@@ -12,13 +12,14 @@ PRINT_FREQ: 100
 
 DATASET:
   COLOR_RGB: false
-  DATASET: mpii
+  DATASET: posex_mpii
+  TESTSET: mpii
   DATA_FORMAT: jpg
   FLIP: true
   NUM_JOINTS_HALF_BODY: 8
   PROB_HALF_BODY: -1.0
   ROOT: 'data/poseX/'
-  TEST_ROOT: 'data/mpii'
+  TEST_ROOT: 'data/mpii/'
   ROT_FACTOR: 30
   SCALE_FACTOR: 0.25
   TEST_SET: valid
@@ -54,7 +55,7 @@ TRAIN:
   BATCH_SIZE_PER_GPU: 32
   SHUFFLE: true
   BEGIN_EPOCH: 0
-  END_EPOCH: 140
+  END_EPOCH: 30
   OPTIMIZER: 'adam'
   LR: 0.001
   LR_FACTOR: 0.1

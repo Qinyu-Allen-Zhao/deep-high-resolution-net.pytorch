@@ -33,8 +33,6 @@ def dist_acc(dists, thr=0.5):
     dist_cal = np.not_equal(dists, -1)
     num_dist_cal = dist_cal.sum()
     if num_dist_cal > 0:
-        # print(dists[dist_cal])
-        # print(np.less(dists[dist_cal], thr))
         return np.less(dists[dist_cal], thr).sum() * 1.0 / num_dist_cal
     else:
         return -1
@@ -70,5 +68,6 @@ def accuracy(output, target, hm_type='gaussian', thr=0.5):
     avg_acc = avg_acc / cnt if cnt != 0 else 0
     if cnt != 0:
         acc[0] = avg_acc
-    # print('acc',acc)
     return acc, avg_acc, cnt, pred
+
+

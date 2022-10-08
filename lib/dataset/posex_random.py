@@ -23,11 +23,11 @@ import joblib
 logger = logging.getLogger(__name__)
 
 
-class PosexMPIIDataset(JointsDataset):
+class PosexRandomDataset(JointsDataset):
     def __init__(self, cfg, root, image_set, is_train, transform=None):
         super().__init__(cfg, root, image_set, is_train, transform)
 
-        self.num_joints = 16
+        self.num_joints = 54
 
         self.db = self._get_db()
 
@@ -38,7 +38,7 @@ class PosexMPIIDataset(JointsDataset):
 
     def _get_db(self):
         file_name = os.path.join(
-            self.root, 'annotations', 'posex_total_annotations.pkl'
+            self.root, 'annotations', 'posex_annotations.pkl'
         )
         anno = joblib.load(file_name)
         image_dir = 'images/validation'
@@ -55,6 +55,7 @@ class PosexMPIIDataset(JointsDataset):
 
     def read_annotations(self, anno, image_dir):
         gt_db = []
+
         for a in anno:
             image_name = a['image']
 
@@ -85,6 +86,7 @@ class PosexMPIIDataset(JointsDataset):
                     'imgnum': 0,
                 }
             )
+
         return gt_db
 
     def evaluate(self, cfg, preds, output_dir, *args, **kwargs):

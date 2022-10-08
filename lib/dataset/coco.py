@@ -105,7 +105,7 @@ class COCODataset(JointsDataset):
         self.db = self._get_db()
 
         if is_train and cfg.DATASET.SELECT_DATA:
-            self.db = self.select_data(self.db)
+            self.db = np.random.choice(self.db, size=1000, replace=False)
 
         logger.info('=> load {} samples'.format(len(self.db)))
 

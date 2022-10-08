@@ -55,7 +55,7 @@ class H36MDataset(JointsDataset):
             image_name = img_names[i]
 
             c = np.array(f['center'][i], dtype=np.float)
-            s = np.array(f['scale'][i], dtype=np.float)
+            s = np.array([f['scale'][i], f['scale'][i]], dtype=np.float)
 
             joints_3d = np.zeros((self.num_joints, 3), dtype=np.float)
             joints_3d_vis = np.zeros((self.num_joints,  3), dtype=np.float)
@@ -100,7 +100,7 @@ class H36MDataset(JointsDataset):
         f.close()
 
         pos_pred_src = np.transpose(preds, [1, 2, 0])
-        uv_error = pos_pred_src - pos_gt_src
+        uv_error = pos_pred_src[:,0:2] - pos_gt_src
         uv_err = np.linalg.norm(uv_error, axis=1)
 
         rmse = np.mean(uv_err, axis=1)

@@ -56,12 +56,11 @@ class PosexH36MDataset(JointsDataset):
             joints_3d_vis = np.zeros((self.num_joints,  3), dtype=np.float)
             if self.image_set != 'test':
                 joints = np.array(a['joints']).transpose()
-                joints[:, 0:2] = joints[:, 0:2] - 1
-                joints_vis = np.array(a['joints_vis'])
+                joints_vis = np.ones(17) # np.array(a['joints_vis'])
                 assert len(joints) == self.num_joints, \
                     'joint num diff: {} vs {}'.format(len(joints),
                                                       self.num_joints)
-
+                
                 joints_3d[:, 0:2] = joints[:, 0:2]
                 joints_3d_vis[:, 0] = joints_vis[:]
                 joints_3d_vis[:, 1] = joints_vis[:]

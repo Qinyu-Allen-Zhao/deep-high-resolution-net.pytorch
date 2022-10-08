@@ -23,16 +23,11 @@ import joblib
 logger = logging.getLogger(__name__)
 
 
-class MPIIDataset(JointsDataset):
+class PosexMPIIDataset(JointsDataset):
     def __init__(self, cfg, root, image_set, is_train, transform=None):
         super().__init__(cfg, root, image_set, is_train, transform)
 
         self.num_joints = 16
-        self.flip_pairs = [[0, 5], [1, 4], [2, 3], [10, 15], [11, 14], [12, 13]]
-        self.parent_ids = [1, 2, 6, 6, 3, 4, 6, 6, 7, 8, 11, 12, 7, 7, 13, 14]
-
-        self.upper_body_ids = (7, 8, 9, 10, 11, 12, 13, 14, 15)
-        self.lower_body_ids = (0, 1, 2, 3, 4, 5, 6)
 
         self.db = self._get_db()
 
@@ -44,7 +39,7 @@ class MPIIDataset(JointsDataset):
     def _get_db(self):
         # create train/val split
         file_name = os.path.join(
-            self.root, 'annot', 'posex_for_mpii_annotations.pkl'
+            self.root, 'annotations', 'posex_for_mpii_annotations.pkl'
         )
         anno = joblib.load(file_name)
 
@@ -54,6 +49,57 @@ class MPIIDataset(JointsDataset):
 
             c = np.array(a['center'], dtype=np.float)
             s = np.array(a['scale'], dtype=np.float)
+
+            joints_3d = np.zeros((self.num_joints, 3), dtype=np.float)
+            joints_3d_vis = np.zeros((self.num_joints,  3), dtype=np.float)
+            if self.image_set != 'test':
+                joints = np.array(a['joints']).transpose()
+                joints[:, 0:2] = joints[:, 0:2]
+                joints_vis = np.array(a['joints_vis'])
+                assert len(joints) == self.num_joints, \
+                    'joint num diff: {} vs {}'.format(len(joints),
+                                                      self.num_joints)
+
+                joints_3d[:, 0:2] = joints[:, 0:2]
+                joints_3d_vis[:, 0] = joints_vis[:]
+                joints_3d_vis[:, 1] = joints_vis[:]
+
+            image_dir = 'images/validation'
+            gt_db.append(
+                {
+                    'image': os.path.join(self.root, image_dir, image_name),
+                    'center': c,
+                    'scale': s,
+                    'joints_3d': joints_3d,
+                    'joints_3d_vis': joints_3d_vis,
+                    'filename': '',
+                    'imgnum': 0,
+                }
+            )
+
+        return gt_db
+    
+    def _get_db_mpii(self):
+        # create train/val split
+        file_name = 'data/mpii/annot/train.json'
+        with open(file_name) as anno_file:
+            anno = json.load(anno_file)
+
+        gt_db = []
+        for a in anno:
+            image_name = a['image']
+
+            c = np.array(a['center'], dtype=np.float)
+            s = np.array([a['scale'], a['scale']], dtype=np.float)
+
+            # Adjust center/scale slightly to avoid cropping limbs
+            if c[0] != -1:
+                c[1] = c[1] + 15 * s[1]
+                s = s * 1.25
+
+            # MPII uses matlab format, index is based 1,
+            # we should first convert to 0-based index
+            c = c - 1
 
             joints_3d = np.zeros((self.num_joints, 3), dtype=np.float)
             joints_3d_vis = np.zeros((self.num_joints,  3), dtype=np.float)
@@ -83,6 +129,49 @@ class MPIIDataset(JointsDataset):
             )
 
         return gt_db
+    
+    def _get_db_coco(self):
+        # create train/val split
+        file_name = os.path.join(
+            self.root, 'annotations', 'pose_coco_for_mpii_annotations.pkl'
+        )
+        anno = joblib.load(file_name)
+
+        gt_db = []
+        for a in anno:
+            image_name = a['image']
+
+            c = np.array(a['center'], dtype=np.float)
+            s = np.array(a['scale'], dtype=np.float)
+
+            joints_3d = np.zeros((self.num_joints, 3), dtype=np.float)
+            joints_3d_vis = np.zeros((self.num_joints,  3), dtype=np.float)
+            if self.image_set != 'test':
+                joints = np.array(a['joints']).transpose()
+                joints[:, 0:2] = joints[:, 0:2]
+                joints_vis = np.array(a['joints_vis'])
+                assert len(joints) == self.num_joints, \
+                    'joint num diff: {} vs {}'.format(len(joints),
+                                                      self.num_joints)
+
+                joints_3d[:, 0:2] = joints[:, 0:2]
+                joints_3d_vis[:, 0] = joints_vis[:]
+                joints_3d_vis[:, 1] = joints_vis[:]
+
+            image_dir = 'images/coco_poses'
+            gt_db.append(
+                {
+                    'image': os.path.join(self.root, image_dir, image_name),
+                    'center': c,
+                    'scale': s,
+                    'joints_3d': joints_3d,
+                    'joints_3d_vis': joints_3d_vis,
+                    'filename': '',
+                    'imgnum': 0,
+                }
+            )
+
+        return gt_db
 
     def evaluate(self, cfg, preds, output_dir, *args, **kwargs):
         # convert 0-based index to 1-based index
@@ -98,7 +187,7 @@ class MPIIDataset(JointsDataset):
         SC_BIAS = 0.6
         threshold = 0.5
 
-        gt_file = os.path.join(cfg.DATASET.TEST_ROOT,
+        gt_file = os.path.join('data/mpii',
                                'annot',
                                'gt_{}.mat'.format(cfg.DATASET.TEST_SET))
         gt_dict = loadmat(gt_file)

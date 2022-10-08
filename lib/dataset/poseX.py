@@ -157,9 +157,8 @@ class PoseXDataset(JointsDataset):
         width = im_ann['width']
         height = im_ann['height']
 
-        annIds = self.coco.getAnnIds(imgIds=index, iscrowd=False)
+        annIds = self.coco.getAnnIds(imgIds=index)
         objs = self.coco.loadAnns(annIds)
-
         # sanitize bboxes
         valid_objs = []
         for obj in objs:
@@ -168,16 +167,16 @@ class PoseXDataset(JointsDataset):
             y1 = np.max((0, y))
             x2 = np.min((width - 1, x1 + np.max((0, w - 1))))
             y2 = np.min((height - 1, y1 + np.max((0, h - 1))))
-            if obj['area'] > 0 and x2 >= x1 and y2 >= y1:
+            if x2 >= x1 and y2 >= y1:
                 obj['clean_bbox'] = [x1, y1, x2-x1, y2-y1]
                 valid_objs.append(obj)
         objs = valid_objs
 
         rec = []
         for obj in objs:
-            cls = self._coco_ind_to_class_ind[obj['category_id']]
-            if cls != 1:
-                continue
+            # cls = self._coco_ind_to_class_ind[obj['category_id']]
+            # if cls != 1:
+            #     continue
 
             # ignore objs without keypoints annotation
             if max(obj['keypoints']) == 0:
@@ -426,7 +425,7 @@ class PoseXDataset(JointsDataset):
             result = [
                 {
                     'image_id': img_kpts[k]['image'],
-               xr     'category_id': cat_id,
+                    'category_id': cat_id,
                     'keypoints': list(key_points[k]),
                     'score': img_kpts[k]['score'],
                     'center': list(img_kpts[k]['center']),

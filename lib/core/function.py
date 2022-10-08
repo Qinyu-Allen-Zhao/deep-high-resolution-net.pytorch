@@ -7,7 +7,7 @@
 from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
-
+ 
 import time
 import logging
 import os
@@ -51,6 +51,7 @@ def train(config, train_loader, model, criterion, optimizer, epoch,
                 loss += criterion(output, target, target_weight)
         else:
             output = outputs
+            # print(output.shape, target.shape, target_weight.shape)
             loss = criterion(output, target, target_weight)
 
         # loss = criterion(output, target, target_weight)
@@ -95,7 +96,7 @@ def train(config, train_loader, model, criterion, optimizer, epoch,
 
 
 def validate(config, val_loader, val_dataset, model, criterion, output_dir,
-             tb_log_dir, writer_dict=None, eval_exclude_kpt=0):
+             tb_log_dir, writer_dict=None):
     batch_time = AverageMeter()
     losses = AverageMeter()
     acc = AverageMeter()
@@ -105,7 +106,7 @@ def validate(config, val_loader, val_dataset, model, criterion, output_dir,
 
     num_samples = len(val_dataset)
     all_preds = np.zeros(
-        (num_samples, config.MODEL.NUM_JOINTS, 3),
+        (num_samples, val_dataset.num_joints, 3),
         dtype=np.float32
     )
     all_boxes = np.zeros((num_samples, 6))
@@ -143,17 +144,19 @@ def validate(config, val_loader, val_dataset, model, criterion, output_dir,
                         output_flipped.clone()[:, :, :, 0:-1]
 
                 output = (output + output_flipped) * 0.5
+            if hasattr(val_dataset, "idx_keypoints"):
+                output = output[:, val_dataset.idx_keypoints, :, :]
 
             target = target.cuda(non_blocking=True)
             target_weight = target_weight.cuda(non_blocking=True)
-            loss = criterion(output[:,eval_exclude_kpt:,:,:], target[:,eval_exclude_kpt:,:,:], target_weight[:,eval_exclude_kpt:,:])
+
+            loss = criterion(output, target, target_weight)
 
             num_images = input.size(0)
             # measure accuracy and record loss
             losses.update(loss.item(), num_images)
-            # visualization is done in accuracy
-            _, avg_acc, cnt, pred = accuracy(output[:,eval_exclude_kpt:,:,:].cpu().numpy(),
-                                             target[:,eval_exclude_kpt:,:,:].cpu().numpy())
+            _, avg_acc, cnt, pred = accuracy(output.cpu().numpy(),
+                                             target.cpu().numpy())
 
             acc.update(avg_acc, cnt)
 

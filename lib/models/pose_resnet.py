@@ -232,7 +232,19 @@ class PoseResNet(nn.Module):
 
             pretrained_state_dict = torch.load(pretrained)
             logger.info('=> loading pretrained model {}'.format(pretrained))
-            self.load_state_dict(pretrained_state_dict, strict=False)
+            # self.load_state_dict(pretrained_state_dict, strict=False)
+            
+            model_dict = self.state_dict()
+            # 1. filter out unnecessary keys
+            pretrained_dict = {k: v for k, v in pretrained_state_dict.items() 
+                               if k in model_dict}
+            # 2. overwrite entries in the existing state dict
+            for k in pretrained_state_dict.keys() & model_dict.keys():
+                if pretrained_state_dict[k].shape == model_dict[k].shape:
+                    print("Use pretrained layer: ", k)
+                    model_dict[k] = pretrained_state_dict[k]
+            # 3. load the new state dict
+            self.load_state_dict(model_dict, strict=False)
         else:
             logger.info('=> init weights from normal distribution')
             for m in self.modules():

@@ -96,7 +96,6 @@ class EvaRanOnMPII(JointsDataset):
 
     def evaluate(self, cfg, preds, output_dir, *args, **kwargs):
         # convert 0-based index to 1-based index
-        preds = preds[:, self.idx_keypoints, :]
         preds = preds[:, :, 0:2] + 1.0
 
         if output_dir:

@@ -34,7 +34,7 @@ MODEL:
   - 64
   - 64
   SIGMA: 2
-  NUM_JOINTS: 16
+  NUM_JOINTS: 17
   TARGET_TYPE: 'gaussian'
   EXTRA:
     FINAL_CONV_KERNEL: 1

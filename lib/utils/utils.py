@@ -26,12 +26,8 @@ def create_logger(cfg, cfg_name, phase='train'):
         print('=> creating {}'.format(root_output_dir))
         root_output_dir.mkdir()
 
-    # TODO: change output folder
-    dataset_name = cfg.DATASET.ROOT.split("/")[1]
-    # dataset = cfg.DATASET.DATASET + '_' + cfg.DATASET.HYBRID_JOINTS_TYPE \
-    #     if cfg.DATASET.HYBRID_JOINTS_TYPE else cfg.DATASET.DATASET
-    dataset = dataset_name + '_' + cfg.DATASET.HYBRID_JOINTS_TYPE \
-        if cfg.DATASET.HYBRID_JOINTS_TYPE else dataset_name    
+    dataset = cfg.DATASET.DATASET + '_' + cfg.DATASET.HYBRID_JOINTS_TYPE \
+        if cfg.DATASET.HYBRID_JOINTS_TYPE else cfg.DATASET.DATASET
     dataset = dataset.replace(':', '_')
     model = cfg.MODEL.NAME
     cfg_name = os.path.basename(cfg_name).split('.')[0]
