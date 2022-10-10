@@ -62,11 +62,6 @@ def parse_args():
                         type=str,
                         default='')
 
-    parser.add_argument('--evalExcludeKpt',
-                        help='first x number of keypoint to exlude in evaluation',
-                        type=int,
-                        required=True)
-
     args = parser.parse_args()
     return args
 
@@ -111,8 +106,8 @@ def main():
     normalize = transforms.Normalize(
         mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]
     )
-    valid_dataset = eval('dataset.'+cfg.DATASET.DATASET)(
-        cfg, cfg.DATASET.ROOT, cfg.DATASET.TEST_SET, False,
+    valid_dataset = eval('dataset.'+cfg.DATASET.TESTSET)(
+        cfg, cfg.DATASET.TEST_ROOT, cfg.DATASET.TEST_SET, False,
         transforms.Compose([
             transforms.ToTensor(),
             normalize,
@@ -128,7 +123,7 @@ def main():
 
     # evaluate on validation set
     validate(cfg, valid_loader, valid_dataset, model, criterion,
-             final_output_dir, tb_log_dir, eval_exclude_kpt=args.evalExcludeKpt)
+             final_output_dir, tb_log_dir)
 
 
 if __name__ == '__main__':
