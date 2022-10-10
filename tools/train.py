@@ -108,7 +108,7 @@ def main():
     dump_input = torch.rand(
         (1, 3, cfg.MODEL.IMAGE_SIZE[1], cfg.MODEL.IMAGE_SIZE[0])
     )
-    # writer_dict['writer'].add_graph(model, (dump_input, )) # Failed to export an ONNX attribute, since it's not constant, please try to make things (e.g., kernel size) static if possible
+    writer_dict['writer'].add_graph(model, (dump_input, ))
 
     logger.info(get_model_summary(model, dump_input))
 
@@ -130,8 +130,8 @@ def main():
             normalize,
         ])
     )
-    valid_dataset = eval('dataset.'+cfg.DATASET.DATASET)(
-        cfg, cfg.DATASET.ROOT, cfg.DATASET.TEST_SET, False,
+    valid_dataset = eval('dataset.'+cfg.DATASET.TESTSET)(
+        cfg, cfg.DATASET.TEST_ROOT, cfg.DATASET.TEST_SET, False,
         transforms.Compose([
             transforms.ToTensor(),
             normalize,
@@ -182,7 +182,6 @@ def main():
     for epoch in range(begin_epoch, cfg.TRAIN.END_EPOCH):
         lr_scheduler.step()
 
-        # train for one epoch
         train(cfg, train_loader, model, criterion, optimizer, epoch,
               final_output_dir, tb_log_dir, writer_dict)
 
