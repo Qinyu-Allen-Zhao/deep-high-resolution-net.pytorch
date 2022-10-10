@@ -18,3 +18,4 @@ from .posex_random import PosexRandomDataset as posex_ran
 from .eva_ran_mpii import EvaRanOnMPII as eva_mpii
 from .eva_ran_coco import EvaRanOnCOCO as eva_coco
 from .posex_mpii_total import PosexMPIICombDataset as pose_mpii_comb
+from .posex_pro import PosexProDataset as posex_pro
