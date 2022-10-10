@@ -65,7 +65,7 @@ class PosexProDataset(JointsDataset):
                     {
                         'image': image_file,
                         'center': center[img_id],
-                        'scale': scale[img_id],
+                        'scale': np.array([scale[img_id], scale[img_id]]),
                         'joints_3d': joints_3d,
                         'joints_3d_vis': joints_3d_vis,
                         'filename': image_file,
