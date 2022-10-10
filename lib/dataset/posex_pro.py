@@ -44,7 +44,7 @@ class PosexProDataset(JointsDataset):
         ann_path = os.path.join(self.root, 'ann')
 
         for sub_id in range(103):
-            ann = joblib.load(os.path.join(ann_path, 'sub%d.pkl' % sub_id)).detach().numpy()
+            ann = joblib.load(os.path.join(ann_path, 'sub%d.pkl' % sub_id))
             center = ann['center'].T
             scale = ann['scale']
             all_joints = ann['keypoints']
