@@ -191,14 +191,14 @@ class PosexProDataset(JointsDataset):
             img[np.where(depth < 1e8)] = 0
             img += obj
 
-        num_hum = np.random.randint(2)
-        for _ in range(num_hum):
-            choice = np.random.randint(0, len(self.human_list))
-            tsf_img = torch.load(self.human_list[choice], map_location=torch.device('cpu'))
-            tsf_mask = torch.load(self.human_list[choice][:-7] + '_mask.pt', map_location=torch.device('cpu'))
-            tsf_img = self.hum_transform(tsf_img)[0].permute((1, 2, 0))
-
-            img = tsf_mask * img + (1 - tsf_mask) * (tsf_img + 1) / 2.0
+        # num_hum = np.random.randint(2)
+        # for _ in range(num_hum):
+        #     choice = np.random.randint(0, len(self.human_list))
+        #     tsf_img = torch.load(self.human_list[choice], map_location=torch.device('cpu'))
+        #     tsf_mask = torch.load(self.human_list[choice][:-7] + '_mask.pt', map_location=torch.device('cpu'))
+        #     tsf_img = self.hum_transform(tsf_img)[0].permute((1, 2, 0))
+        #
+        #     img = tsf_mask * img + (1 - tsf_mask) * (tsf_img + 1) / 2.0
 
         # if self.transform:
         #     input = self.transform(input)
