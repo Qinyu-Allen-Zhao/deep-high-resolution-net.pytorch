@@ -207,6 +207,7 @@ class PosexProDataset(JointsDataset):
 
         # if self.transform:
         #     input = self.transform(input)
+        img = img.permute((2, 0, 1))
         input = normalize(img)
 
         for i in range(self.num_joints):
