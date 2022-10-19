@@ -82,7 +82,7 @@ class PosexProDataset(JointsDataset):
         img_path = os.path.join(self.root, 'images')
         ann_path = os.path.join(self.root, 'ann')
 
-        for sub_id in range(10):
+        for sub_id in range(1416):
             file_sub = os.path.join(ann_path, 'sub%d.pkl' % sub_id)
             if not os.path.exists(file_sub):
                 continue
