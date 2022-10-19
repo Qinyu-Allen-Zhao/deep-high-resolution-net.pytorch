@@ -82,14 +82,18 @@ class PosexProDataset(JointsDataset):
         img_path = os.path.join(self.root, 'images')
         ann_path = os.path.join(self.root, 'ann')
 
-        for sub_id in range(103):
+        for sub_id in range(1416):
+            if not os.path.exists('smpl/sub%d.pkl' % sub_id):
+                continue
             ann = joblib.load(os.path.join(ann_path, 'sub%d.pkl' % sub_id))
             center = ann['center'].T
             scale = ann['scale']
             all_joints = ann['keypoints']
 
-            for img_id in range(500):
+            for img_id in range(50):
                 image_file = os.path.join(img_path, "sub{}_{:0>8}.png".format(sub_id, img_id))
+                if not os.path.exists(image_file):
+                    continue
 
                 joints = all_joints[img_id]
 
