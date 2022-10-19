@@ -48,7 +48,7 @@ class PosexProDataset(JointsDataset):
             for file in range(5):
                 self.object_list.append(os.path.join(path, dir_name, f"{file}.hdf5"))
 
-        self.human_list = list(glob('/datasets/synthesis_dataset/syn_humans/*_img.pt'))
+        self.human_list = list(glob('/datasets/synthesis_dataset/syn_human/*_img.pt'))
         self.img_transform = transforms.Compose([
             transforms.ToTensor(),
             transforms.ConvertImageDtype(torch.float)
@@ -56,14 +56,14 @@ class PosexProDataset(JointsDataset):
         self.obj_transform = transforms.Compose([
             transforms.ToTensor(),
             transforms.ConvertImageDtype(torch.float),
-            transforms.Resize(300),
+            transforms.Resize(350),
             # Data augmentation
             transforms.RandomHorizontalFlip(0.5),
             transforms.Pad(padding=300, fill=0),
             transforms.RandomCrop(size=(512, 512))
         ])
         self.hum_transform = transforms.Compose([
-            transforms.Resize(300),
+            transforms.Resize(350),
             # Data augmentation
             transforms.RandomHorizontalFlip(0.5),
             transforms.Pad(padding=300, fill=0),
@@ -192,8 +192,24 @@ class PosexProDataset(JointsDataset):
             depth = np.array(f['depth'])
             obj[np.where(depth > 1e8)] = 0
 
+            for i in range(len(obj)):
+                if obj[i, :].sum() > 0:
+                    break
+            for j in range(len(obj) - 1, -1, -1):
+                if obj[j, :].sum() > 0:
+                    break
+            obj = obj[max(i - 5, 0):j + 5, :]
+
+            for i in range(len(obj[0])):
+                if obj[:, i].sum() > 0:
+                    break
+            for j in range(len(obj[0]) - 1, -1, -1):
+                if obj[:, j].sum() > 0:
+                    break
+            obj = obj[:, max(i - 5, 0):j + 5]
+
             obj = self.obj_transform(obj).permute((1, 2, 0))
-            img[np.where(depth < 1e8)] = 0
+            img[np.where(obj > 0)] = 0
             img += obj
 
         num_hum = np.random.randint(2)
@@ -201,9 +217,14 @@ class PosexProDataset(JointsDataset):
             choice = np.random.randint(0, len(self.human_list))
             tsf_img = torch.load(self.human_list[choice], map_location=torch.device('cpu'))
             tsf_mask = torch.load(self.human_list[choice][:-7] + '_mask.pt', map_location=torch.device('cpu'))
-            tsf_img = self.hum_transform(tsf_img)[0].permute((1, 2, 0))
 
-            img = tsf_mask * img + (1 - tsf_mask) * (tsf_img + 1) / 2.0
+            tsf_mask = tsf_mask[0].permute((1, 2, 0))
+            tsf_img = tsf_img[0].permute((1, 2, 0))
+            tsf_img = (1 - tsf_mask) * (tsf_img + 1) / 2.0
+            tsf_img = self.hum_transform(tsf_img.permute((2, 0, 1))).permute((1, 2, 0))
+            img[np.where(tsf_img > 0.05)] = 0
+
+            img = img + tsf_img
 
         # if self.transform:
         #     input = self.transform(input)
