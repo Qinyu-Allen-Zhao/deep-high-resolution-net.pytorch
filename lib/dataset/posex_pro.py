@@ -83,9 +83,10 @@ class PosexProDataset(JointsDataset):
         ann_path = os.path.join(self.root, 'ann')
 
         for sub_id in range(1416):
-            if not os.path.exists('smpl/sub%d.pkl' % sub_id):
+            file_sub = os.path.join(ann_path, 'sub%d.pkl' % sub_id)
+            if not os.path.exists(file_sub):
                 continue
-            ann = joblib.load(os.path.join(ann_path, 'sub%d.pkl' % sub_id))
+            ann = joblib.load(file_sub)
             center = ann['center'].T
             scale = ann['scale']
             all_joints = ann['keypoints']
