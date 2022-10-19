@@ -56,18 +56,18 @@ class PosexProDataset(JointsDataset):
         self.obj_transform = transforms.Compose([
             transforms.ToTensor(),
             transforms.ConvertImageDtype(torch.float),
-            transforms.Resize(300),
+            transforms.Resize(200),
             # Data augmentation
             transforms.RandomHorizontalFlip(0.5),
-            transforms.Pad(padding=350, fill=0),
-            transforms.RandomCrop(size=(512, 512))
+            transforms.Pad(padding=150, fill=0),
+            transforms.RandomCrop(size=(256, 256))
         ])
         self.hum_transform = transforms.Compose([
-            transforms.Resize(300),
+            transforms.Resize(200),
             # Data augmentation
             transforms.RandomHorizontalFlip(0.5),
-            transforms.Pad(padding=350, fill=0),
-            transforms.RandomCrop(size=(512, 512))
+            transforms.Pad(padding=150, fill=0),
+            transforms.RandomCrop(size=(256, 256))
         ])
 
         if is_train and cfg.DATASET.SELECT_DATA:
