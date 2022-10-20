@@ -27,7 +27,7 @@ DATASET:
 MODEL:
   INIT_WEIGHTS: true
   NAME: 'pose_resnet'
-  PRETRAINED: '/content/drive/MyDrive/projects/COMP8755SynForHPE/Pretrain/checkpoints/pretrain_45.pth'
+  PRETRAINED: 'output/posex_pro/pose_resnet/syn_pro_res50/model_best.pth'
   IMAGE_SIZE:
   - 256
   - 256
